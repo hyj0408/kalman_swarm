@@ -1,0 +1,8 @@
+prefix=/home/up/kalman_ws/src/kalman_swarm/cmake-build-debug/devel
+
+Name: kalman_swarm
+Description: Description of kalman_swarm
+Version: 0.0.0
+Cflags: -I/home/up/kalman_ws/src/kalman_swarm/cmake-build-debug/devel/include
+Libs: -L${prefix}/lib 
+Requires: roscpp rospy std_msgs tf message_runtime

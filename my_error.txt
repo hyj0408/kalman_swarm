@@ -1,0 +1,19 @@
+本人的错误：
+kalman: /usr/include/eigen3/Eigen/src/Core/DenseCoeffsBase.h:425: Eigen::DenseCoeffsBase<Derived, 1>::Scalar& Eigen::DenseCoeffsBase<Derived, 1>::operator()(Eigen::Index) [with Derived = Eigen::Matrix<double, 2, 1>; Eigen::DenseCoeffsBase<Derived, 1>::Scalar = double; Eigen::Index = long int]: Assertion `index >= 0 && index < size()' failed.
+
+
+Assertion index >= 0 && index < size()' failed. **
+整个报错如下：
+usr/include/eigen3/Eigen/src/Core/DenseCoeffsBase.h:407: Eigen::DenseCoeffsBase<Derived, 1>::Scalar& Eigen::DenseCoeffsBase<Derived, 1>::operator()(Eigen::DenseCoeffsBase<Derived, 1>::Index) [with Derived = Eigen::Matrix<double, -0x00000000000000001, 1>, Eigen::DenseCoeffsBase<Derived, 1>::Scalar = double, Eigen::DenseCoeffsBase<Derived, 1>::Index = long int]: Assertionindex >= 0 && index < size()’ failed.
+Aborted (core dumped)
+
+是在使用eigen的时候没有进行初始化，需要指定向量x的大小。 如果像下面
+
+Eigen::VectorXd x;
+
+    1
+
+一样声明x，它将是一个空的向量（一个长度为0的向量），所以当你尝试访问它的第一个元素时，你会收到一个错误。
+————————————————
+版权声明：本文为CSDN博主「Felaim」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/Felaim/article/details/77072898

@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/up/kalman_ws/src/kalman_swarm/cmake-build-debug/devel/setup.sh
