@@ -43,7 +43,7 @@ public:
         Eigen::VectorXd x;
         Eigen::MatrixXd P_cov;
         Eigen::VectorXd u; //use input u to calculate x
-        Eigen::Vector2d y;
+        Eigen::Vector3d y;
         State(){
 //            x<<0,0,0,0;
 //            y<<0,0;
@@ -51,6 +51,7 @@ public:
 
             y(0)=0;
             y(1)=0;
+            y(2)=0;
 
             P_cov=0.2 *Eigen::Matrix<double, 6, 6>::Identity();
         }
