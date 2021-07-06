@@ -43,7 +43,9 @@ public:
         Eigen::VectorXd x;
         Eigen::MatrixXd P_cov;
         Eigen::VectorXd u; //use input u to calculate x
-        Eigen::Vector2d y;
+        Eigen::Vector3d y;
+        bool update_flag;
+
         State(){
 //            x<<0,0,0,0;
 //            y<<0,0;
@@ -51,11 +53,14 @@ public:
 
             y(0)=0;
             y(1)=0;
+            y(2)=0;
 
             P_cov=0.2 *Eigen::Matrix<double, 6, 6>::Identity();
+
+            update_flag= false;
         }
         State(Eigen::VectorXd x, Eigen::MatrixXd P_cov, Eigen::VectorXd u):
-             x(x), P_cov(P_cov), u(u){}
+             x(x), P_cov(P_cov), u(u), update_flag(false){}
         ~State()
         {
         }
@@ -64,6 +69,9 @@ public:
     //int state_index=0;
 
     std::deque<State> states;
+    std::deque<State> time_series;
+    Eigen::Vector3d outcome_difference{0,0,0};
+
     //State state;
     void predict(Eigen::VectorXd u,std_msgs::Header head)
     {
@@ -96,7 +104,7 @@ public:
             std::cout<<"after states.push_back(state_now);"<<std::endl;
             state_index++;
             std::cout<<"after state_index++;"<<std::endl;
-            predict(state_index);
+            predict(states,state_index);
             std::cout<<"after predict"<<std::endl;
         }
 
@@ -107,7 +115,7 @@ public:
         //update(state_index);
     }
 
-    void update(Eigen::VectorXd y,std_msgs::Header head)
+    void update(Eigen::Vector3d y,std_msgs::Header head)
     {
 
         std::cout<<"go into update"<<std::endl;
@@ -116,18 +124,35 @@ public:
         states[state_index].head=head;
         std::cout<<"states[state_index].head=head;"<<std::endl;
         std::cout<<states.size()<<std::endl;
+        states[state_index].y=y;
+
+        if (y(0)!=0&&y(1)!=0&&y(2)!=0&&time_series.size()<30)
+        {
+            time_series.push_back(states[state_index]);
+        }
+        else if(y(0)==0||y(1)==0||y(2)==0)
+        {
+            time_series.clear();
+        }
+        else if(time_series.size()==30)
+        {
+            //time_series[0].x=Eigen::VectorXd::Zero(6);
+            outcome_difference=get_difference(time_series);
+        }
 
         if (state_index==0)
         {
             std::cout<<"if update"<<std::endl;
-            states[state_index].y=y;
+
 
         } else
         {
             std::cout<<"else update"<<std::endl;
-            states[state_index].y=y;
-            update(state_index);
+            update(states,state_index);
+            states[state_index].update_flag = true;
         }
+
+
         //states[state_index].y=y;
 
 
@@ -150,30 +175,68 @@ public:
         //std::cout<<states.size()<<std::endl;
         geometry_msgs::Pose pose;
         if(states.size()!=0)
-        {   //std::cout<<states.back().x<<std::endl;
-            pose.position.x=states.back().x(0);
-            pose.position.y=states.back().x(1);
-            pose.position.z=states.back().x(2);
+        {
+            if(states.back().update_flag)
+            {
+                //std::cout<<states.back().x<<std::endl;
+                pose.position.x=states.back().x(0);
+                pose.position.y=states.back().x(1);
+                pose.position.z=states.back().x(2);
+            }
+            else
+            {
+                pose.position.x=states.back().x(0)+outcome_difference(0);
+                pose.position.y=states.back().x(1)+outcome_difference(1);
+                pose.position.z=states.back().x(2)+outcome_difference(2);
+            }
+
         }
         return pose;
     }
 
+    Eigen::Vector3d get_difference(std::deque<State> temp)
+    {
+        Eigen::Vector3d temp_outcome_difference(0,0,0);
+        std::deque<State> only_pre;
+        std::deque<State> pre_upd;
+        for (int i=0;i<20;i++)
+        {
+            only_pre.push_back(temp[i]);
+            only_pre[0].x=Eigen::VectorXd::Zero(6);
+            pre_upd.push_back(temp[i]);
+            pre_upd[0].x=Eigen::VectorXd::Zero(6);
+        }
+        int k=0;
+        update(pre_upd,k);
+        temp_outcome_difference=pre_upd[0].x-only_pre[0].x;
+        for(int j=1;j<20;j++)
+        {
+            predict(only_pre,j);
+            predict(pre_upd,j);
+            update(pre_upd,j);
+            temp_outcome_difference=pre_upd[j].x-only_pre[j].x;
+        }
+        temp_outcome_difference=temp_outcome_difference/20;
+
+        return temp_outcome_difference;
+    }
+
 private:
-    void predict(int state_index)
+    void predict(std::deque<State> onestatedeque , int state_index)
     {
         std::cout<<"private predict"<<std::endl;
         //std::cout<<B_input<<std::endl;
 
 //    states[state_index].x=states[state_index].A*states[state_index-1].x + states[state_index-1].B*states[state_index-1].u;
 //    states[state_index].P_cov=states[state_index].A*states[state_index-1].P_cov*states[state_index-1].A.transpose()+Q_cov;
-        states[state_index].x=A_trans*states[state_index-1].x + B_input*states[state_index-1].u;
+        onestatedeque[state_index].x=A_trans*onestatedeque[state_index-1].x + B_input*onestatedeque[state_index-1].u;
 //    std::cout<<states[state_index].x<<std::endl;
-        std::cout<<states.back().x<<std::endl;
-        states[state_index].P_cov=A_trans*states[state_index-1].P_cov*A_trans.transpose()+Q_cov;
+        std::cout<<onestatedeque.back().x<<std::endl;
+        onestatedeque[state_index].P_cov=A_trans*onestatedeque[state_index-1].P_cov*A_trans.transpose()+Q_cov;
         std::cout<<"finish private predict"<<std::endl;
     }
 
-    void update(int & state_index)
+    void update(std::deque<State> onestatedeque , int & state_index)
     {
 
     std::cout<<"private update"<<std::endl;
@@ -181,9 +244,9 @@ private:
 //    K_gain=states[state_index].P_cov*C_obs.transpose()*(C_obs*states[state_index].P_cov*C_obs.transpose()+R_noise).inverse();
 //    states[state_index].x=states[state_index].x+K_gain*(states[state_index].y-C_obs*states[state_index].x);
 //    states[state_index].P_cov=states[state_index].P_cov-K_gain*C_obs*states[state_index].P_cov;
-    K_gain=states[state_index].P_cov*C_obs.transpose()*(C_obs*states[state_index].P_cov*C_obs.transpose()+R_noise).inverse();
-    states[state_index].x=states[state_index].x+K_gain*(states[state_index].y-C_obs*states[state_index].x);
-    states[state_index].P_cov=states[state_index].P_cov-K_gain*C_obs*states[state_index].P_cov;
+    K_gain=onestatedeque[state_index].P_cov*C_obs.transpose()*(C_obs*onestatedeque[state_index].P_cov*C_obs.transpose()+R_noise).inverse();
+    onestatedeque[state_index].x=onestatedeque[state_index].x+K_gain*(onestatedeque[state_index].y-C_obs*onestatedeque[state_index].x);
+    onestatedeque[state_index].P_cov=onestatedeque[state_index].P_cov-K_gain*C_obs*onestatedeque[state_index].P_cov;
 //    std::cout<<states[state_index].x<<std::endl;
 //    std::cout<<states.back().x<<std::endl;
     //state_index++;

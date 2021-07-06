@@ -25,6 +25,7 @@ double imu_rate = 50;//rostopic hz name 读出来的
 double pose_pub_rate = 50;
 
 Eigen::Vector3d my_pose(0,0,0);
+Eigen::Vector3d difference(0,0,0);
 
 
 //imu回调函数
@@ -100,7 +101,6 @@ void pose_pub_timer_callback(const ros::TimerEvent&)
 
     kalman_pose_pub.publish(g_latest_pose);
 
-
 }
 
 int main(int argc, char **argv)
@@ -118,6 +118,7 @@ int main(int argc, char **argv)
 
     //imu的Subscriber
     ros::Subscriber imu_sub = nh.subscribe<sensor_msgs::Imu>("/uav2/mavros/imu/data",1,imu_callback);
+
 
     //二维码的Subscriber
     ros::Subscriber aruco_sub = nh.subscribe<nlink_parser::SwarmInfoStamped>("/uav1/uwb_recv_detected_aruco_pose",1,aruco_callback);
