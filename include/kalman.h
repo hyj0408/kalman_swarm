@@ -17,7 +17,6 @@ public:
     Eigen::MatrixXd A_trans, B_input, Q_cov;
     Eigen::MatrixXd C_obs, R_noise;
     Eigen::MatrixXd P_cov_0;
-    Eigen::MatrixXd L_obs;
     double imu_rate = 50;
     double imu_dt=1/imu_rate;
 
@@ -126,7 +125,7 @@ public:
         std::cout<<states.size()<<std::endl;
         states[state_index].y=y;
 
-        if (y(0)!=0&&y(1)!=0&&y(2)!=0&&time_series.size()<30)
+        if (y(0)!=0&&y(1)!=0&&y(2)!=0&&time_series.size()<20)
         {
             time_series.push_back(states[state_index]);
         }
@@ -134,7 +133,7 @@ public:
         {
             time_series.clear();
         }
-        else if(time_series.size()==30)
+        else if(time_series.size()==20)
         {
             //time_series[0].x=Eigen::VectorXd::Zero(6);
             outcome_difference=get_difference(time_series);
@@ -196,7 +195,8 @@ public:
 
     Eigen::Vector3d get_difference(std::deque<State> temp)
     {
-        Eigen::Vector3d temp_outcome_difference(0,0,0);
+        std::cout<<"get_difference"<<std::endl;
+        Eigen::VectorXd d ;
         std::deque<State> only_pre;
         std::deque<State> pre_upd;
         for (int i=0;i<20;i++)
@@ -209,12 +209,17 @@ public:
         int k=0;
         update(pre_upd,k);
         temp_outcome_difference=pre_upd[0].x-only_pre[0].x;
+        std::cout<<"before the second for loop"<<std::endl;
         for(int j=1;j<20;j++)
         {
+            std::cout<<"into the second for loop"<<std::endl;
             predict(only_pre,j);
+            std::cout<<"after the first predict"<<std::endl;
             predict(pre_upd,j);
+            std::cout<<"after the second predict"<<std::endl;
             update(pre_upd,j);
-            temp_outcome_difference=pre_upd[j].x-only_pre[j].x;
+            std::cout<<"after update"<<std::endl;
+            temp_outcome_difference=temp_outcome_difference+pre_upd[j].x-only_pre[j].x;
         }
         temp_outcome_difference=temp_outcome_difference/20;
 
@@ -247,6 +252,8 @@ private:
     K_gain=onestatedeque[state_index].P_cov*C_obs.transpose()*(C_obs*onestatedeque[state_index].P_cov*C_obs.transpose()+R_noise).inverse();
     onestatedeque[state_index].x=onestatedeque[state_index].x+K_gain*(onestatedeque[state_index].y-C_obs*onestatedeque[state_index].x);
     onestatedeque[state_index].P_cov=onestatedeque[state_index].P_cov-K_gain*C_obs*onestatedeque[state_index].P_cov;
+    std::cout<<"private update done"<<std::endl;
+
 //    std::cout<<states[state_index].x<<std::endl;
 //    std::cout<<states.back().x<<std::endl;
     //state_index++;

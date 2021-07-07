@@ -25,7 +25,7 @@ double imu_rate = 50;//rostopic hz name 读出来的
 double pose_pub_rate = 50;
 
 Eigen::Vector3d my_pose(0,0,0);
-Eigen::Vector3d difference(0,0,0);
+//Eigen::Vector3d difference(0,0,0);
 
 
 //imu回调函数
