@@ -69,7 +69,7 @@ public:
 
     std::deque<State> states;
     std::deque<State> time_series;
-    Eigen::Vector3d outcome_difference{0,0,0};
+    Eigen::VectorXd  outcome_difference=Eigen::VectorXd::Zero(6);
 
     //State state;
     void predict(Eigen::VectorXd u,std_msgs::Header head)
@@ -187,16 +187,19 @@ public:
                 pose.position.x=states.back().x(0)+outcome_difference(0);
                 pose.position.y=states.back().x(1)+outcome_difference(1);
                 pose.position.z=states.back().x(2)+outcome_difference(2);
+//                pose.position.x=states.back().x(0);
+//                pose.position.y=states.back().x(1);
+//                pose.position.z=states.back().x(2);
             }
 
         }
         return pose;
     }
 
-    Eigen::Vector3d get_difference(std::deque<State> temp)
+    Eigen::VectorXd  get_difference(std::deque<State> temp)
     {
         std::cout<<"get_difference"<<std::endl;
-        Eigen::VectorXd d ;
+        Eigen::VectorXd  temp_outcome_difference;
         std::deque<State> only_pre;
         std::deque<State> pre_upd;
         for (int i=0;i<20;i++)
@@ -227,7 +230,7 @@ public:
     }
 
 private:
-    void predict(std::deque<State> onestatedeque , int state_index)
+    void predict(std::deque<State> & onestatedeque , int state_index)
     {
         std::cout<<"private predict"<<std::endl;
         //std::cout<<B_input<<std::endl;
@@ -241,7 +244,7 @@ private:
         std::cout<<"finish private predict"<<std::endl;
     }
 
-    void update(std::deque<State> onestatedeque , int & state_index)
+    void update(std::deque<State> & onestatedeque , int & state_index)
     {
 
     std::cout<<"private update"<<std::endl;
