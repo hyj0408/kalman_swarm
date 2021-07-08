@@ -18,6 +18,7 @@ geometry_msgs::PoseStamped g_latest_pose;
 
 Kalman kalman;
 
+Eigen::Vector3d imu_origin_linear_acceleration(0,0,0);
 
 //camera_frame_rate 不准
 double camera_frame_rate = 61;//rostopic hz name 读出来的
@@ -43,6 +44,13 @@ void imu_callback(const sensor_msgs::Imu::ConstPtr& msg)
     kalman.predict(imu_linear_acceleration,msg->header);
     std::cout<<"imu,predict"<<std::endl;
 }
+void imu_origin_callback(const sensor_msgs::Imu::ConstPtr& msg)
+{
+    imu_origin_linear_acceleration(0)=msg->linear_acceleration.x+0.30489;
+    imu_origin_linear_acceleration(1)=msg->linear_acceleration.y+0.28068;
+    imu_origin_linear_acceleration(2)=msg->linear_acceleration.z-9.800259;
+
+}
 
 //二维码回调函数,放在一个3x1的矩阵里
 void aruco_callback(const nlink_parser::SwarmInfoStamped::ConstPtr& msg)
@@ -53,9 +61,9 @@ void aruco_callback(const nlink_parser::SwarmInfoStamped::ConstPtr& msg)
 //    aruco_pose.position.y=msg->pose.position.y;
 //    aruco_pose.position.z=msg->pose.position.z;
     Eigen::Vector3d aruco_pose;
-    aruco_pose(0)=msg->poses[1].x+my_pose.x();
-    aruco_pose(1)=msg->poses[1].y+my_pose.y();
-    aruco_pose(2)=msg->poses[1].z+my_pose.z();
+    aruco_pose(0)=msg->poses[1].x;
+    aruco_pose(1)=msg->poses[1].y;
+    aruco_pose(2)=msg->poses[1].z;
 
     if ((msg->poses[1].x == 0)&&(msg->poses[1].y == 0)&&(msg->poses[1].z == 0))
     {
@@ -114,11 +122,11 @@ int main(int argc, char **argv)
     kalman_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/kalman_swarm/pose", 10);
 
     //t265的Subscriber
-    ros::Subscriber t265_sub = nh.subscribe<nav_msgs::Odometry>("/uav1/camera/odom/sample",1,t265_callback);
+    //ros::Subscriber t265_sub = nh.subscribe<nav_msgs::Odometry>("/uav1/camera/odom/sample",1,t265_callback);
 
     //imu的Subscriber
     ros::Subscriber imu_sub = nh.subscribe<sensor_msgs::Imu>("/uav2/mavros/imu/data",1,imu_callback);
-
+    ros::Subscriber imu_origin_sub = nh.subscribe<sensor_msgs::Imu>("/uav1/mavros/imu/data",1,imu_origin_callback);
     //二维码的Subscriber
     ros::Subscriber aruco_sub = nh.subscribe<nlink_parser::SwarmInfoStamped>("/uav1/uwb_recv_detected_aruco_pose",1,aruco_callback);
 
