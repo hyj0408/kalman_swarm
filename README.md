@@ -4,7 +4,12 @@
 只有aruco读取到数据，才会进队列，一旦读到一个为0的aruco值，队列清空  
 队列满的时候，进行仅预测操作和预测+更新操作，做出其差，得到imu积分与imu+arcuo之间的差值
 
-###rosbag截取
+### 采用的是相对位置和相对imu的加速度值
+
+### rosbag截取
 通过时间截取bag包。  
 `rosbag filter bigxxx.bag outmy.bag "t.to_sec() >= 0.00 and t.to_sec() <= 10.00"`  
-`rosbag filter bigxxx.bag outmy.bag "t.to_sec() >= 0.00 and t.to_sec() <= 10.00"`
+`rosbag filter '/home/up/rosbag/2021-06-16-21-03-09/uav3_2021-06-16-20-58-17.bag.active' uav3_handle.bag "t.to_sec() >= 1623848344 and t.to_sec() <=1623848405"`
+
+### 将非图片数据提取为.csv格式存储  
+`rostopic echo -b xx.bag -p /mynteye/left/image_mono > cam0data.csv`
