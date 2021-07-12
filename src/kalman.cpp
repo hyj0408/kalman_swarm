@@ -34,9 +34,12 @@ void imu_callback(const sensor_msgs::Imu::ConstPtr &msg) {
     //线加速度，只用到这个了
     //geometry_msgs::Vector3 imu_linear_acceleration;
     Eigen::Vector3d imu_linear_acceleration;
-    imu_linear_acceleration(0) = msg->linear_acceleration.x + 0.46134;
-    imu_linear_acceleration(1) = msg->linear_acceleration.y + 0.17305;
-    imu_linear_acceleration(2) = msg->linear_acceleration.z - 9.795587;
+    imu_linear_acceleration(0) = msg->linear_acceleration.x + 0.46134-imu_origin_linear_acceleration(0);
+    imu_linear_acceleration(1) = msg->linear_acceleration.y + 0.17305-imu_origin_linear_acceleration(1);
+    imu_linear_acceleration(2) = msg->linear_acceleration.z - 9.795587-imu_origin_linear_acceleration(2);
+//    imu_linear_acceleration(0) = msg->linear_acceleration.x + 0.46134;
+//    imu_linear_acceleration(1) = msg->linear_acceleration.y + 0.17305;
+//    imu_linear_acceleration(2) = msg->linear_acceleration.z - 9.795587;
 
     std::cout << "imu" << std::endl;
 
@@ -120,8 +123,7 @@ int main(int argc, char **argv) {
     ros::Subscriber imu_sub = nh.subscribe<sensor_msgs::Imu>("/uav2/mavros/imu/data", 1, imu_callback);
     ros::Subscriber imu_origin_sub = nh.subscribe<sensor_msgs::Imu>("/uav1/mavros/imu/data", 1, imu_origin_callback);
     //二维码的Subscriber
-    ros::Subscriber aruco_sub = nh.subscribe<nlink_parser::SwarmInfoStamped>("/uav1/uwb_recv_detected_aruco_pose", 1,
-                                                                             aruco_callback);
+    ros::Subscriber aruco_sub = nh.subscribe<nlink_parser::SwarmInfoStamped>("/uav1/uwb_recv_detected_aruco_pose", 1,aruco_callback);
 
     ros::spinOnce();
     ros::Timer pose_pub_timer = nh.createTimer(ros::Duration(1 / pose_pub_rate), pose_pub_timer_callback);
