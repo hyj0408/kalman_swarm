@@ -29,8 +29,8 @@ public:
         B_input.block(3,0,3,3)=imu_dt*Eigen::Matrix<double, 3, 3>::Identity();
         C_obs=Eigen::Matrix<double, 3, 6>::Zero();
         C_obs.block(0,0,3,3)=Eigen::Matrix<double, 3, 3>::Identity();
-        Q_cov = 0.001 * Eigen::Matrix<double, 6,6>::Identity();//要调参
-        R_noise = 0.1 * Eigen::Matrix<double, 3,3>::Identity();//要调参
+        Q_cov = 0.1 * Eigen::Matrix<double, 6,6>::Identity();//要调参
+        R_noise = 0.001 * Eigen::Matrix<double, 3,3>::Identity();//要调参
         P_cov_0=0.2*Eigen::Matrix<double, 6, 6>::Identity();
     }
 
