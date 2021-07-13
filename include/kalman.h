@@ -200,18 +200,29 @@ public:
     {
         std::cout<<"get_difference"<<std::endl;
         Eigen::VectorXd  temp_outcome_difference;
+        temp_outcome_difference=Eigen::VectorXd::Zero(6);
         std::deque<State> only_pre;
         std::deque<State> pre_upd;
         for (int i=0;i<20;i++)
         {
             only_pre.push_back(temp[i]);
-            only_pre[0].x=Eigen::VectorXd::Zero(6);
+
             pre_upd.push_back(temp[i]);
-            pre_upd[0].x=Eigen::VectorXd::Zero(6);
+
         }
-        int k=0;
-        update(pre_upd,k);
-        temp_outcome_difference=pre_upd[0].x-only_pre[0].x;
+        only_pre[0].x=Eigen::VectorXd::Zero(6);
+        only_pre[0].x[0]=only_pre[0].y[0];
+        only_pre[0].x[1]=only_pre[0].y[1];
+        only_pre[0].x[2]=only_pre[0].y[2];
+
+        pre_upd[0].x=Eigen::VectorXd::Zero(6);
+        pre_upd[0].x[0]=pre_upd[0].y[0];
+        pre_upd[0].x[1]=pre_upd[0].y[1];
+        pre_upd[0].x[2]=pre_upd[0].y[2];
+
+        //int k=0;
+        //update(pre_upd,k);
+        //temp_outcome_difference=pre_upd[0].x-only_pre[0].x;
         std::cout<<"before the second for loop"<<std::endl;
         for(int j=1;j<20;j++)
         {
@@ -222,9 +233,12 @@ public:
             std::cout<<"after the second predict"<<std::endl;
             update(pre_upd,j);
             std::cout<<"after update"<<std::endl;
-            temp_outcome_difference=temp_outcome_difference+pre_upd[j].x-only_pre[j].x;
         }
-        temp_outcome_difference=temp_outcome_difference/20;
+        for(int l=11;l<20;l++)
+        {
+            temp_outcome_difference=temp_outcome_difference+pre_upd[l].x-only_pre[l].x;
+        }
+        temp_outcome_difference=temp_outcome_difference/10;
 
         return temp_outcome_difference;
     }

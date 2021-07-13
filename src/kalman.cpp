@@ -39,7 +39,6 @@ void imu_callback(const sensor_msgs::Imu::ConstPtr& msg)
     imu_linear_acceleration(0)=msg->linear_acceleration.x+0.46134-imu_origin_linear_acceleration(0);
     imu_linear_acceleration(1)=msg->linear_acceleration.y+0.17305-imu_origin_linear_acceleration(1);
     imu_linear_acceleration(2)=msg->linear_acceleration.z-9.795587-imu_origin_linear_acceleration(2);
-
     std::cout<<"imu"<<std::endl;
 
     kalman.predict(imu_linear_acceleration,msg->header);
