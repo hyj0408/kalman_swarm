@@ -36,12 +36,12 @@ void imu_callback(const sensor_msgs::Imu::ConstPtr& msg)
     //线加速度，只用到这个了
     //geometry_msgs::Vector3 imu_linear_acceleration;
     Eigen::Vector3d imu_linear_acceleration;
-//    imu_linear_acceleration(0)=msg->linear_acceleration.x+0.46134-imu_origin_linear_acceleration(0);
-//    imu_linear_acceleration(1)=msg->linear_acceleration.y+0.17305-imu_origin_linear_acceleration(1);
-//    imu_linear_acceleration(2)=msg->linear_acceleration.z-9.795587-imu_origin_linear_acceleration(2);
-    imu_linear_acceleration(0)=msg->linear_acceleration.x-imu_origin_linear_acceleration(0);
-    imu_linear_acceleration(1)=msg->linear_acceleration.y-imu_origin_linear_acceleration(1);
-    imu_linear_acceleration(2)=msg->linear_acceleration.z-imu_origin_linear_acceleration(2);
+    imu_linear_acceleration(0)=msg->linear_acceleration.x+0.46134-imu_origin_linear_acceleration(0);
+    imu_linear_acceleration(1)=msg->linear_acceleration.y+0.17305-imu_origin_linear_acceleration(1);
+    imu_linear_acceleration(2)=msg->linear_acceleration.z-9.795587-imu_origin_linear_acceleration(2);
+//    imu_linear_acceleration(0)=msg->linear_acceleration.x-imu_origin_linear_acceleration(0);
+//    imu_linear_acceleration(1)=msg->linear_acceleration.y-imu_origin_linear_acceleration(1);
+//    imu_linear_acceleration(2)=msg->linear_acceleration.z-imu_origin_linear_acceleration(2);
     std::cout<<"imu"<<std::endl;
 
     kalman.predict(imu_linear_acceleration,msg->header);
@@ -49,12 +49,12 @@ void imu_callback(const sensor_msgs::Imu::ConstPtr& msg)
 }
 void imu_origin_callback(const sensor_msgs::Imu::ConstPtr& msg)
 {
-//    imu_origin_linear_acceleration(0)=msg->linear_acceleration.x+0.30489;
-//    imu_origin_linear_acceleration(1)=msg->linear_acceleration.y+0.28068;
-//    imu_origin_linear_acceleration(2)=msg->linear_acceleration.z-9.800259;
-    imu_origin_linear_acceleration(0)=msg->linear_acceleration.x;
-    imu_origin_linear_acceleration(1)=msg->linear_acceleration.y;
-    imu_origin_linear_acceleration(2)=msg->linear_acceleration.z;
+    imu_origin_linear_acceleration(0)=msg->linear_acceleration.x+0.30489;
+    imu_origin_linear_acceleration(1)=msg->linear_acceleration.y+0.28068;
+    imu_origin_linear_acceleration(2)=msg->linear_acceleration.z-9.800259;
+//    imu_origin_linear_acceleration(0)=msg->linear_acceleration.x;
+//    imu_origin_linear_acceleration(1)=msg->linear_acceleration.y;
+//    imu_origin_linear_acceleration(2)=msg->linear_acceleration.z;
 
 }
 //二维码回调函数,放在一个3x1的矩阵里

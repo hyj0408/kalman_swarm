@@ -19,6 +19,7 @@ public:
     Eigen::MatrixXd P_cov_0;
     double imu_rate = 50;
     double imu_dt=1/imu_rate;
+    int lamda=1;
 
 
     Kalman() {
@@ -149,6 +150,8 @@ public:
             std::cout<<"else update"<<std::endl;
             update(states,state_index);
             states[state_index].update_flag = true;
+            compara(state_index);
+
         }
 
 
@@ -243,6 +246,10 @@ public:
         return temp_outcome_difference;
     }
 
+    void compara(int state_index)
+    {
+        outcome_difference=(1-lamda)*outcome_difference+lamda*(states[state_index].x-states[state_index-1].x);
+    }
 private:
     void predict(std::deque<State> & onestatedeque , int state_index)
     {

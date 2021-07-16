@@ -15,6 +15,9 @@
 `rostopic echo -b xx.bag -p /mynteye/left/image_mono > cam0data.csv`
 
 ### 修改意见0711
-1.画出只有imu的图  
-2.跳变可能是数据的稀疏性造成的，有一两个有aruco，后面又跟着一两个没有aruco  
-3.对比imu和imu+aruco之间的delta x和imu与vicon之间的delta关系  
+1. 画出只有imu的图  
+2. 跳变可能是数据的稀疏性造成的，有一两个有aruco，后面又跟着一两个没有aruco  
+3. 对比imu和imu+aruco之间的delta x和imu与vicon之间的delta关系  
+
+### 相比较imu_observer的改进
+在小距离看不见aruco时，在下一次看见的时候对距离进行矫正
