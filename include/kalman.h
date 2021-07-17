@@ -139,25 +139,23 @@ public:
             //time_series[0].x=Eigen::VectorXd::Zero(6);
             outcome_difference=get_difference(time_series);
         }
-
         if (state_index==0)
         {
             std::cout<<"if update"<<std::endl;
-
-
         } else
         {
+            Eigen::VectorXd x_last=states[state_index].x;
             std::cout<<"else update"<<std::endl;
             update(states,state_index);
             states[state_index].update_flag = true;
-            compara(state_index);
-
+            compare(state_index,x_last);
         }
-
-
         //states[state_index].y=y;
+    }
 
-
+    void compare(int state_index,Eigen::VectorXd x_last)
+    {
+        outcome_difference=(1-lamda)*outcome_difference+lamda*(states[state_index].x-x_last);
     }
 
     std_msgs::Header getheader()
@@ -246,17 +244,14 @@ public:
         return temp_outcome_difference;
     }
 
-    void compara(int state_index)
-    {
-        outcome_difference=(1-lamda)*outcome_difference+lamda*(states[state_index].x-states[state_index-1].x);
-    }
+
 private:
     void predict(std::deque<State> & onestatedeque , int state_index)
     {
         std::cout<<"private predict"<<std::endl;
         //std::cout<<B_input<<std::endl;
 
-//    states[state_index].x=states[state_index].A*states[state_index-1].x + states[state_index-1].B*states[state_index-1].u;
+// es[state_index].x=states[state_index].A*states[state_index-1].x + states[state_index-1].B*states[state_index-1].u;
 //    states[state_index].P_cov=states[state_index].A*states[state_index-1].P_cov*states[state_index-1].A.transpose()+Q_cov;
         onestatedeque[state_index].x=A_trans*onestatedeque[state_index-1].x + B_input*onestatedeque[state_index-1].u;
 //    std::cout<<states[state_index].x<<std::endl;
