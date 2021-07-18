@@ -10,6 +10,7 @@
 #include <queue>
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Pose.h>
+#include "LSM/LSM.h"
 
 
 class Kalman {
@@ -153,10 +154,6 @@ public:
         //states[state_index].y=y;
     }
 
-    void compare(int state_index,Eigen::VectorXd x_last)
-    {
-        outcome_difference=(1-lamda)*outcome_difference+lamda*(states[state_index].x-x_last);
-    }
 
     std_msgs::Header getheader()
     {
@@ -168,7 +165,6 @@ public:
         }
         return head1;
     }
-
 
     geometry_msgs::Pose getpose()
     {
@@ -195,6 +191,45 @@ public:
 
         }
         return pose;
+    }
+
+
+private:
+    void predict(std::deque<State> & onestatedeque , int state_index)
+    {
+        std::cout<<"private predict"<<std::endl;
+        //std::cout<<B_input<<std::endl;
+
+// es[state_index].x=states[state_index].A*states[state_index-1].x + states[state_index-1].B*states[state_index-1].u;
+//    states[state_index].P_cov=states[state_index].A*states[state_index-1].P_cov*states[state_index-1].A.transpose()+Q_cov;
+        onestatedeque[state_index].x=A_trans*onestatedeque[state_index-1].x + B_input*onestatedeque[state_index-1].u;
+//    std::cout<<states[state_index].x<<std::endl;
+        std::cout<<onestatedeque.back().x<<std::endl;
+        onestatedeque[state_index].P_cov=A_trans*onestatedeque[state_index-1].P_cov*A_trans.transpose()+Q_cov;
+        std::cout<<"finish private predict"<<std::endl;
+    }
+
+    void update(std::deque<State> & onestatedeque , int & state_index)
+    {
+
+    std::cout<<"private update"<<std::endl;
+    Eigen::MatrixXd K_gain;
+//    K_gain=states[state_index].P_cov*C_obs.transpose()*(C_obs*states[state_index].P_cov*C_obs.transpose()+R_noise).inverse();
+//    states[state_index].x=states[state_index].x+K_gain*(states[state_index].y-C_obs*states[state_index].x);
+//    states[state_index].P_cov=states[state_index].P_cov-K_gain*C_obs*states[state_index].P_cov;
+    K_gain=onestatedeque[state_index].P_cov*C_obs.transpose()*(C_obs*onestatedeque[state_index].P_cov*C_obs.transpose()+R_noise).inverse();
+    onestatedeque[state_index].x=onestatedeque[state_index].x+K_gain*(onestatedeque[state_index].y-C_obs*onestatedeque[state_index].x);
+    onestatedeque[state_index].P_cov=onestatedeque[state_index].P_cov-K_gain*C_obs*onestatedeque[state_index].P_cov;
+    std::cout<<"private update done"<<std::endl;
+
+//    std::cout<<states[state_index].x<<std::endl;
+//    std::cout<<states.back().x<<std::endl;
+    //state_index++;
+    }
+
+    void compare(int state_index,Eigen::VectorXd x_last)
+    {
+        outcome_difference=(1-lamda)*outcome_difference+lamda*(states[state_index].x-x_last);
     }
 
     Eigen::VectorXd  get_difference(std::deque<State> temp)
@@ -245,38 +280,6 @@ public:
     }
 
 
-private:
-    void predict(std::deque<State> & onestatedeque , int state_index)
-    {
-        std::cout<<"private predict"<<std::endl;
-        //std::cout<<B_input<<std::endl;
-
-// es[state_index].x=states[state_index].A*states[state_index-1].x + states[state_index-1].B*states[state_index-1].u;
-//    states[state_index].P_cov=states[state_index].A*states[state_index-1].P_cov*states[state_index-1].A.transpose()+Q_cov;
-        onestatedeque[state_index].x=A_trans*onestatedeque[state_index-1].x + B_input*onestatedeque[state_index-1].u;
-//    std::cout<<states[state_index].x<<std::endl;
-        std::cout<<onestatedeque.back().x<<std::endl;
-        onestatedeque[state_index].P_cov=A_trans*onestatedeque[state_index-1].P_cov*A_trans.transpose()+Q_cov;
-        std::cout<<"finish private predict"<<std::endl;
-    }
-
-    void update(std::deque<State> & onestatedeque , int & state_index)
-    {
-
-    std::cout<<"private update"<<std::endl;
-    Eigen::MatrixXd K_gain;
-//    K_gain=states[state_index].P_cov*C_obs.transpose()*(C_obs*states[state_index].P_cov*C_obs.transpose()+R_noise).inverse();
-//    states[state_index].x=states[state_index].x+K_gain*(states[state_index].y-C_obs*states[state_index].x);
-//    states[state_index].P_cov=states[state_index].P_cov-K_gain*C_obs*states[state_index].P_cov;
-    K_gain=onestatedeque[state_index].P_cov*C_obs.transpose()*(C_obs*onestatedeque[state_index].P_cov*C_obs.transpose()+R_noise).inverse();
-    onestatedeque[state_index].x=onestatedeque[state_index].x+K_gain*(onestatedeque[state_index].y-C_obs*onestatedeque[state_index].x);
-    onestatedeque[state_index].P_cov=onestatedeque[state_index].P_cov-K_gain*C_obs*onestatedeque[state_index].P_cov;
-    std::cout<<"private update done"<<std::endl;
-
-//    std::cout<<states[state_index].x<<std::endl;
-//    std::cout<<states.back().x<<std::endl;
-    //state_index++;
-    }
 
 };
 

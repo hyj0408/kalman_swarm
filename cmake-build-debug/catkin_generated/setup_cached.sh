@@ -9,6 +9,7 @@
 # modified environment variables
 export CMAKE_PREFIX_PATH="/home/up/kalman_ws/src/kalman_swarm/cmake-build-debug/devel:$CMAKE_PREFIX_PATH"
 export LD_LIBRARY_PATH="/home/up/kalman_ws/src/kalman_swarm/cmake-build-debug/devel/lib:$LD_LIBRARY_PATH"
+export PATH='/opt/ros/melodic/bin:/home/up/anaconda3/bin:/home/up/anaconda3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'
 export PKG_CONFIG_PATH="/home/up/kalman_ws/src/kalman_swarm/cmake-build-debug/devel/lib/pkgconfig:$PKG_CONFIG_PATH"
 export PYTHONPATH="/home/up/kalman_ws/src/kalman_swarm/cmake-build-debug/devel/lib/python2.7/dist-packages:$PYTHONPATH"
 export ROSLISP_PACKAGE_DIRECTORIES="/home/up/kalman_ws/src/kalman_swarm/cmake-build-debug/devel/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"

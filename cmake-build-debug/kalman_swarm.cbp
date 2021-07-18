@@ -982,6 +982,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/up/kalman_ws/src/kalman_swarm/include/LSM/LSM.h">
+			<Option target="kalman"/>
+		</Unit>
 		<Unit filename="/home/up/kalman_ws/src/kalman_swarm/src/kalman.cpp">
 			<Option target="kalman"/>
 		</Unit>

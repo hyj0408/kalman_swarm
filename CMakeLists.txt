@@ -165,7 +165,7 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-add_executable(kalman src/kalman.cpp)
+add_executable(kalman src/kalman.cpp include/LSM/LSM.h)
 target_link_libraries(kalman ${catkin_LIBRARIES})
 add_dependencies(kalman ${PROJECT_NAME}_generate_messages_cpp)
 

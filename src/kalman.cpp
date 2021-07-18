@@ -9,6 +9,7 @@
 #include <std_msgs/UInt32.h>
 #include "/home/up/catkin_ws/devel/include/nlink_parser/SwarmInfoStamped.h"
 #include <nav_msgs/Odometry.h>
+#include "../include/LSM/LSM.h"
 
 
 //#include "TimeConverter.h"
@@ -115,6 +116,17 @@ void pose_pub_timer_callback(const ros::TimerEvent&)
 
 }
 
+int main1(int argc, char **argv){
+    //测试函数
+    deque<Eigen::Vector2d> data;
+    for (int i = 0; i < 1000000; ++i) {
+        data.push_back(Eigen::Vector2d(rand()/1000.0f,rand()/1000.0f));
+    }
+    std::cout << time(nullptr)<<std::endl;
+    std::cout << LSM::solve(data,3) <<std::endl;
+    std::cout << time(nullptr);
+}
+
 int main(int argc, char **argv)
 {
     // 初始化ROS节点
@@ -140,6 +152,5 @@ int main(int argc, char **argv)
 
     // 循环等待回调函数
     ros::spin();
-
     return 0;
 }

@@ -28,6 +28,28 @@ geometry_msgs/Point.h
 geometry_msgs/Point.h
 -
 
+/home/up/kalman_ws/src/kalman_swarm/include/LSM/LSM.h
+eigen3/Eigen/Core
+-
+eigen3/Eigen/Dense
+-
+eigen3/Eigen/Geometry
+-
+eigen3/Eigen/Eigenvalues
+-
+iostream
+-
+fstream
+-
+string
+-
+vector
+-
+cmath
+-
+deque
+-
+
 /home/up/kalman_ws/src/kalman_swarm/include/kalman.h
 iostream
 -
@@ -39,6 +61,8 @@ geometry_msgs/Vector3.h
 -
 geometry_msgs/Pose.h
 -
+LSM/LSM.h
+/home/up/kalman_ws/src/kalman_swarm/include/LSM/LSM.h
 
 /home/up/kalman_ws/src/kalman_swarm/src/kalman.cpp
 ros/ros.h
@@ -55,6 +79,8 @@ std_msgs/UInt32.h
 -
 nav_msgs/Odometry.h
 -
+../include/LSM/LSM.h
+/home/up/kalman_ws/src/kalman_swarm/include/LSM/LSM.h
 
 /opt/ros/melodic/include/geometry_msgs/Point.h
 string
