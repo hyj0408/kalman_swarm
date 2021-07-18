@@ -61,7 +61,7 @@ void imu_origin_callback(const sensor_msgs::Imu::ConstPtr& msg)
 //二维码回调函数,放在一个3x1的矩阵里
 void aruco_callback(const nlink_parser::SwarmInfoStamped::ConstPtr& msg)
 {
-    bool flag_aruco= false;
+
 //    geometry_msgs::Pose aruco_pose;
 //    aruco_pose.position.x=msg->pose.position.x;
 //    aruco_pose.position.y=msg->pose.position.y;
@@ -71,16 +71,7 @@ void aruco_callback(const nlink_parser::SwarmInfoStamped::ConstPtr& msg)
     aruco_pose(1)=msg->poses[1].y;
     aruco_pose(2)=msg->poses[1].z;
 
-    if ((msg->poses[1].x == 0)&&(msg->poses[1].y == 0)&&(msg->poses[1].z == 0))
-    {
-        flag_aruco= true;
-    }
-
-    std::cout<<"aruco"<<std::endl;
-    if (flag_aruco== false)
-    {
-        kalman.update(aruco_pose,msg->header);
-    }
+    kalman.update(aruco_pose,msg->header);
 
     std::cout<<"aruco,update"<<std::endl;
 

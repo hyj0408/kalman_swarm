@@ -118,14 +118,18 @@ public:
 
     void update(Eigen::Vector3d y,std_msgs::Header head)
     {
-
-        std::cout<<"go into update"<<std::endl;
-        int &state_index= states.back().index;
-        std::cout<<"state_index"<<std::endl;
-        states[state_index].head=head;
-        std::cout<<"states[state_index].head=head;"<<std::endl;
-        std::cout<<states.size()<<std::endl;
-        states[state_index].y=y;
+        int state_index=0;
+        if (y(0)!=0&&y(1)!=0&&y(2)!=0)
+        {
+            std::cout<<"go into update"<<std::endl;
+            state_index = states.back().index;
+            std::cout<<"state_index"<<std::endl;
+            states[state_index].head=head;
+            std::cout<<"states[state_index].head=head;"<<std::endl;
+            std::cout<<states.size()<<std::endl;
+            states[state_index].y=y;
+        }
+        std::cout<<"after the first if"<<std::endl;
 
         if (y(0)!=0&&y(1)!=0&&y(2)!=0&&time_series.size()<20)
         {
@@ -140,10 +144,12 @@ public:
             //time_series[0].x=Eigen::VectorXd::Zero(6);
             outcome_difference=get_difference(time_series);
         }
+        std::cout<<"after the second if"<<std::endl;
+
         if (state_index==0)
         {
             std::cout<<"if update"<<std::endl;
-        } else
+        } else if (y(0)!=0&&y(1)!=0&&y(2)!=0)
         {
             Eigen::VectorXd x_last=states[state_index].x;
             std::cout<<"else update"<<std::endl;
