@@ -14,8 +14,16 @@
 ### 将非图片数据提取为.csv格式存储  
 `rostopic echo -b xx.bag -p /mynteye/left/image_mono > cam0data.csv`
 
-### 相比较imu_observer的改进
-1. 在小距离看不见aruco时，在下一次看见的时候对距离进行矫正
+### 矫正方法
+1. 对加速度进行矫正，因为kalman其实是对位置进行了协方差最小，对位置进行矫正打破了其平衡
 2. 可以尝试对imu进行低通滤波
-3. 小范围imu观测器修正的时候，可以按照低通的思路考虑历史信息
-4. 长时间观测不到aruco时，用线性去拟合补偿
+
+### 注意  
+其他几个分支的Eigen::VectorXd  get_difference(std::deque<State> temp) 最后一个for循环参数有误  
+```
+    for(int l=10;l<20;l++)
+    {
+        temp_outcome_difference=temp_outcome_difference+pre_upd[l].x-only_pre[l].x;
+    }
+    temp_outcome_difference=temp_outcome_difference/10;
+```
