@@ -71,7 +71,9 @@ public:
 
     std::deque<State> states;
     std::deque<State> time_series;
+    std::deque<State> zero_que;
     Eigen::VectorXd  outcome_difference=Eigen::VectorXd::Zero(6);
+        bool once_aruco_flag = false;
 
     //State state;
     void predict(Eigen::VectorXd u,std_msgs::Header head)
@@ -116,47 +118,62 @@ public:
         //update(state_index);
     }
 
+    int numofzeros=0;
     void update(Eigen::Vector3d y,std_msgs::Header head)
     {
-        int state_index=0;
-        if (y(0)!=0&&y(1)!=0&&y(2)!=0)
+
+        if (!states.empty())
         {
             std::cout<<"go into update"<<std::endl;
-            state_index = states.back().index;
+            int state_index = states.back().index;
             std::cout<<"state_index"<<std::endl;
             states[state_index].head=head;
             std::cout<<"states[state_index].head=head;"<<std::endl;
             std::cout<<states.size()<<std::endl;
             states[state_index].y=y;
-        }
-        std::cout<<"after the first if"<<std::endl;
+            std::cout<<"after the first if"<<std::endl;
 
-        if (y(0)!=0&&y(1)!=0&&y(2)!=0&&time_series.size()<20)
-        {
-            time_series.push_back(states[state_index]);
-        }
-        else if(y(0)==0||y(1)==0||y(2)==0)
-        {
-            time_series.clear();
-        }
-        else if(time_series.size()==20)
-        {
-            //time_series[0].x=Eigen::VectorXd::Zero(6);
-            outcome_difference=get_difference(time_series);
-        }
-        std::cout<<"after the second if"<<std::endl;
+            if (y(0)!=0&&y(1)!=0&&y(2)!=0&&time_series.size()<20)
+            {
+                once_aruco_flag=true;
+                time_series.push_back(states[state_index]);
+            }
+            else if(y(0)==0||y(1)==0||y(2)==0)
+            {
+                time_series.clear();
+            }
+            else if(time_series.size()==20)
+            {
+                //time_series[0].x=Eigen::VectorXd::Zero(6);
+                outcome_difference=get_difference(time_series);
+            }
+            std::cout<<"after the second if"<<std::endl;
 
-        if (state_index==0)
-        {
-            std::cout<<"if update"<<std::endl;
-        } else if (y(0)!=0&&y(1)!=0&&y(2)!=0)
-        {
-            Eigen::VectorXd x_last=states[state_index].x;
-            std::cout<<"else update"<<std::endl;
-            update(states,state_index);
-            states[state_index].update_flag = true;
-            compare(state_index,x_last);
+            if (state_index==0)
+            {
+                std::cout<<"if update"<<std::endl;
+            } else if (y(0)!=0&&y(1)!=0&&y(2)!=0)
+            {
+                Eigen::VectorXd x_last=states[state_index].x;
+                std::cout<<"else update"<<std::endl;
+                update(states,state_index);
+                states[state_index].update_flag = true;
+                compare(state_index,x_last);
+            }
+
+            //zero_que.push_back(states.back());
+            if (y(0)==0&&y(1)==0&&y(2)==0)
+            {
+                zero_que.push_back(states[state_index]);
+                numofzeros++;
+            }
+            else if(y(0)!=0||y(1)!=0||y(2)!=0)
+            {
+                zero_que.clear();
+                numofzeros=0;
+            }
         }
+
         //states[state_index].y=y;
     }
 
@@ -185,7 +202,7 @@ public:
                 pose.position.y=states.back().x(1);
                 pose.position.z=states.back().x(2);
             }
-            else
+            else if(numofzeros<=5||once_aruco_flag == false)
             {
                 pose.position.x=states.back().x(0)+outcome_difference(0);
                 pose.position.y=states.back().x(1)+outcome_difference(1);
@@ -193,6 +210,27 @@ public:
 //                pose.position.x=states.back().x(0);
 //                pose.position.y=states.back().x(1);
 //                pose.position.z=states.back().x(2);
+            }
+            else if (numofzeros>5)
+            {
+                if (outcome_difference(0)>0)
+                {
+                    pose.position.x=states.back().x(0)+numofzeros*0.0213739;
+                }
+                else
+                {
+                    pose.position.x=states.back().x(0)-numofzeros*0.0213739;
+                }
+                if (outcome_difference(1)>0)
+                {
+                    pose.position.y=states.back().x(1)+numofzeros*0.0249;
+                }
+                else
+                {
+                    pose.position.y=states.back().x(1)-numofzeros*0.0249;
+                }
+
+                pose.position.z=states.back().x(2)+outcome_difference(2);
             }
 
         }
