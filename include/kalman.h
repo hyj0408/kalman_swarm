@@ -22,6 +22,9 @@ public:
     double imu_dt = 1 / imu_rate;
     int lamda = 1;
 
+    std::deque<Eigen::Vector3d> u_que;
+    Eigen::Vector3d u_que_init=Eigen::VectorXd::Zero(3);
+
 
     Kalman() {
         A_trans = Eigen::Matrix<double, 6, 6>::Identity();
@@ -34,6 +37,9 @@ public:
         Q_cov = 0.01 * Eigen::Matrix<double, 6, 6>::Identity();//要调参
         R_noise = 0.0001 * Eigen::Matrix<double, 3, 3>::Identity();//要调参
         P_cov_0 = 0.2 * Eigen::Matrix<double, 6, 6>::Identity();
+        u_que.push_back(u_que_init);
+        u_que.push_back(u_que_init);
+        u_que.push_back(u_que_init);
     }
 
     struct State {
@@ -75,12 +81,16 @@ public:
     Eigen::VectorXd outcome_difference = Eigen::VectorXd::Zero(3);
     bool once_aruco_flag = false;
 
+
+
     //State state;
     void predict(Eigen::VectorXd u, std_msgs::Header head) {
+        u_que.pop_front();
+        u_que.push_back(u);
         std::cout << "go into predict" << std::endl;
         State state_now;
         std::cout << "state_now success" << std::endl;
-        state_now.u = u+outcome_difference;
+        state_now.u = 0.1*u_que[0]+0.3*u_que[1]+u_que[2]+outcome_difference;
         state_now.head = head;
         int state_index = 0;
         std::cout << "state_now.u=u success" << std::endl;
