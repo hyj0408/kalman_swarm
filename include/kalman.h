@@ -90,7 +90,7 @@ public:
         std::cout << "go into predict" << std::endl;
         State state_now;
         std::cout << "state_now success" << std::endl;
-        state_now.u = 0.1*u_que[0]+0.3*u_que[1]+u_que[2]+outcome_difference;
+        state_now.u = 0.1*u_que[0]+0.2*u_que[1]+0.7*u_que[2]+outcome_difference;
         state_now.head = head;
         int state_index = 0;
         std::cout << "state_now.u=u success" << std::endl;
@@ -130,6 +130,7 @@ public:
     void update(Eigen::Vector3d y, std_msgs::Header head) {
 
         if (!states.empty()) {
+
             std::cout << "go into update" << std::endl;
             int state_index = states.back().index;
             std::cout << "state_index" << std::endl;
