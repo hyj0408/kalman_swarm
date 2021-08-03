@@ -234,7 +234,7 @@ public:
             update(pre_upd,j);
             std::cout<<"after update"<<std::endl;
         }
-        for(int l=11;l<20;l++)
+        for(int l=10;l<20;l++)
         {
             temp_outcome_difference=temp_outcome_difference+pre_upd[l].x-only_pre[l].x;
         }

@@ -27,7 +27,10 @@ double pose_pub_rate = 50;
 
 Eigen::Vector3d my_pose(0,0,0);
 //Eigen::Vector3d difference(0,0,0);
-
+Eigen::Vector3d uav1_imu0(-0.30489,-0.28068,9.800259);
+Eigen::Vector3d uav2_imu0(-0.46134,-0.17305,9.795587);
+Eigen::Vector3d uav3_imu0(-0.30408,-0.32416,9.793484);
+Eigen::Vector3d uav4_imu0(-0.07658,0.041092,9.808339);
 
 //imu回调函数
 void imu_callback(const sensor_msgs::Imu::ConstPtr& msg)
@@ -36,12 +39,10 @@ void imu_callback(const sensor_msgs::Imu::ConstPtr& msg)
     //线加速度，只用到这个了
     //geometry_msgs::Vector3 imu_linear_acceleration;
     Eigen::Vector3d imu_linear_acceleration;
-//    imu_linear_acceleration(0)=msg->linear_acceleration.x+0.46134-imu_origin_linear_acceleration(0);
-//    imu_linear_acceleration(1)=msg->linear_acceleration.y+0.17305-imu_origin_linear_acceleration(1);
-//    imu_linear_acceleration(2)=msg->linear_acceleration.z-9.795587-imu_origin_linear_acceleration(2);
-    imu_linear_acceleration(0)=msg->linear_acceleration.x-imu_origin_linear_acceleration(0);
-    imu_linear_acceleration(1)=msg->linear_acceleration.y-imu_origin_linear_acceleration(1);
-    imu_linear_acceleration(2)=msg->linear_acceleration.z-imu_origin_linear_acceleration(2);
+    imu_linear_acceleration(0)=msg->linear_acceleration.x-uav1_imu0(0)-imu_origin_linear_acceleration(0);
+    imu_linear_acceleration(1)=msg->linear_acceleration.y-uav1_imu0(1)-imu_origin_linear_acceleration(1);
+    imu_linear_acceleration(2)=msg->linear_acceleration.z-uav1_imu0(2)-imu_origin_linear_acceleration(2);
+
     std::cout<<"imu"<<std::endl;
 
     kalman.predict(imu_linear_acceleration,msg->header);
@@ -49,12 +50,10 @@ void imu_callback(const sensor_msgs::Imu::ConstPtr& msg)
 }
 void imu_origin_callback(const sensor_msgs::Imu::ConstPtr& msg)
 {
-//    imu_origin_linear_acceleration(0)=msg->linear_acceleration.x+0.30489;
-//    imu_origin_linear_acceleration(1)=msg->linear_acceleration.y+0.28068;
-//    imu_origin_linear_acceleration(2)=msg->linear_acceleration.z-9.800259;
-    imu_origin_linear_acceleration(0)=msg->linear_acceleration.x;
-    imu_origin_linear_acceleration(1)=msg->linear_acceleration.y;
-    imu_origin_linear_acceleration(2)=msg->linear_acceleration.z;
+    imu_origin_linear_acceleration(0)=msg->linear_acceleration.x-uav4_imu0(0);
+    imu_origin_linear_acceleration(1)=msg->linear_acceleration.y-uav4_imu0(1);
+    imu_origin_linear_acceleration(2)=msg->linear_acceleration.z-uav4_imu0(2);
+
 
 }
 //二维码回调函数,放在一个3x1的矩阵里
@@ -66,9 +65,9 @@ void aruco_callback(const nlink_parser::SwarmInfoStamped::ConstPtr& msg)
 //    aruco_pose.position.y=msg->pose.position.y;
 //    aruco_pose.position.z=msg->pose.position.z;
     Eigen::Vector3d aruco_pose;
-    aruco_pose(0)=msg->poses[1].x;
-    aruco_pose(1)=msg->poses[1].y;
-    aruco_pose(2)=msg->poses[1].z;
+    aruco_pose(0)=msg->poses[12].x;
+    aruco_pose(1)=msg->poses[12].y;
+    aruco_pose(2)=msg->poses[12].z;
 
     if ((msg->poses[1].x == 0)&&(msg->poses[1].y == 0)&&(msg->poses[1].z == 0))
     {
@@ -129,11 +128,11 @@ int main(int argc, char **argv)
     //ros::Subscriber t265_sub = nh.subscribe<nav_msgs::Odometry>("/uav1/camera/odom/sample",1,t265_callback);
 
     //imu的Subscriber
-    ros::Subscriber imu_sub = nh.subscribe<sensor_msgs::Imu>("/uav2/mavros/imu/data",1,imu_callback);
-    ros::Subscriber imu_origin_sub = nh.subscribe<sensor_msgs::Imu>("/uav1/mavros/imu/data",1,imu_origin_callback);
+    ros::Subscriber imu_sub = nh.subscribe<sensor_msgs::Imu>("/uav1/mavros/imu/data",1,imu_callback);
+    ros::Subscriber imu_origin_sub = nh.subscribe<sensor_msgs::Imu>("/uav4/mavros/imu/data",1,imu_origin_callback);
 
     //二维码的Subscriber
-    ros::Subscriber aruco_sub = nh.subscribe<nlink_parser::SwarmInfoStamped>("/uav1/uwb_recv_detected_aruco_pose",1,aruco_callback);
+    ros::Subscriber aruco_sub = nh.subscribe<nlink_parser::SwarmInfoStamped>("/uav4/uwb_recv_detected_aruco_pose",1,aruco_callback);
 
     ros::spinOnce();
     ros::Timer pose_pub_timer = nh.createTimer(ros::Duration(1/pose_pub_rate), pose_pub_timer_callback);
